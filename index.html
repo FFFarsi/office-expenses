@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2A47">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
@@ -16,7 +16,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <style>
   html,body{margin:0;height:100%;background:#EEF1F6;font-family:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#0B1220}
-  #app{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#EEF1F6}
+  /* the frame stops above the phone's home indicator; the page background fills the rest */
+  #app{position:fixed;top:0;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);width:100%;height:auto;border:0;display:block;background:#EEF1F6}
   .msg{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box;gap:10px}
   .msg img{width:72px;height:72px;border-radius:18px}
   .msg h1{font-size:20px;margin:6px 0 0}
@@ -30,11 +31,19 @@
 <script>
 (function () {
   // The platform runs on Google Apps Script; this page only frames it so Google's
-  // "created by a Google Apps Script user" banner does not show. No data or tokens are stored here.
+  // "created by a Google Apps Script user" banner does not show. No platform data is stored here; only the
+  // link key is remembered in this browser so the installed app can open without the full link.
   var EXEC = 'https://script.google.com/macros/s/AKfycbyD0TYEBoaJpGYrWAkvYnPcZ_sqZdqt4FOA5o6nWwM_UG1N-xz__yObZANuuBzBl-HPMg/exec';
   var params = new URLSearchParams(location.search);
   var k = params.get('k') || '';
-  if (!/^[A-Za-z0-9]{24,64}$/.test(k)) {
+  var ok = /^[A-Za-z0-9]{24,64}$/;
+  // Remember the link's key on this device, so the icon added to the home screen / dock opens the platform
+  // even when the saved shortcut has no key. A newer link always replaces the remembered key.
+  try {
+    if (ok.test(k)) localStorage.setItem('k', k);
+    else { var saved = localStorage.getItem('k') || ''; if (ok.test(saved)) k = saved; }
+  } catch (e) {}
+  if (!ok.test(k)) {
     document.body.innerHTML = '<div class="msg"><img src="icon-180.png" alt=""><h1>New Office Expenses</h1><p>Open the full link you received by email.</p></div>';
     return;
   }

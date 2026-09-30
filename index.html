@@ -46,7 +46,11 @@
   f.id = 'app'; f.title = 'New Office Expenses'; f.src = EXEC + q;
   f.setAttribute('allow', 'clipboard-write');
   f.onload = function () { load.style.opacity = '0'; setTimeout(function () { load.remove(); }, 300); };
-  document.body.appendChild(f); document.body.appendChild(load);
+  document.body.appendChild(load);
+  // Create the frame only after this page has fully loaded; framing it during the first parse can leave it blank.
+  function start() { document.body.appendChild(f); }
+  if (document.readyState === 'complete') setTimeout(start, 30);
+  else window.addEventListener('load', function () { setTimeout(start, 30); });
 })();
 </script>
 <noscript><div class="msg"><h1>New Office Expenses</h1><p>Turn on JavaScript to use the platform.</p></div></noscript>

@@ -49,7 +49,7 @@
   }
   var q = '?k=' + encodeURIComponent(k);
   var r = params.get('r');
-  if (r && /^R-\d{1,6}$/.test(r)) q += '&r=' + encodeURIComponent(r);
+  if (r && /^[RP]-\d{1,6}$/.test(r)) q += '&r=' + encodeURIComponent(r); // R- request, P- proposal
   // The platform's signed-in session (after the password) is kept here too, in this page's own storage,
   // and handed to the frame: Safari may drop the frame's storage, this page's survives.
   var SKEY = 's.' + k.slice(-12), sid = '';

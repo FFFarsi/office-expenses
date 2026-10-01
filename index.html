@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0E2A47">
+<meta name="theme-color" content="#0B0D10">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +23,7 @@
   .msg h1{font-size:20px;margin:6px 0 0}
   .msg p{margin:0;color:#6B7686;font-size:15px;max-width:320px;line-height:1.5}
   .load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;transition:opacity .3s}
-  .load i{width:28px;height:28px;border:3px solid #C7D7FE;border-top-color:#0E2A47;border-radius:50%;animation:s .8s linear infinite}
+  .load i{width:28px;height:28px;border:3px solid #D9DEE6;border-top-color:#0B0D10;border-radius:50%;animation:s .8s linear infinite}
   @keyframes s{to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -50,6 +50,16 @@
   var q = '?k=' + encodeURIComponent(k);
   var r = params.get('r');
   if (r && /^R-\d{1,6}$/.test(r)) q += '&r=' + encodeURIComponent(r);
+  // The platform's signed-in session (after the password) is kept here too, in this page's own storage,
+  // and handed to the frame: Safari may drop the frame's storage, this page's survives.
+  var SKEY = 's.' + k.slice(-12), sid = '';
+  try { sid = localStorage.getItem(SKEY) || ''; } catch (e) {}
+  if (/^[A-Za-z0-9]{20,40}$/.test(sid)) q += '&s=' + encodeURIComponent(sid);
+  window.addEventListener('message', function (ev) {
+    var d = ev.data;
+    if (!d || d.t !== 'noe-sid' || !/googleusercontent\.com$|script\.google\.com$/.test(ev.origin)) return;
+    try { if (d.sid && /^[A-Za-z0-9]{20,40}$/.test(d.sid)) localStorage.setItem(SKEY, d.sid); else localStorage.removeItem(SKEY); } catch (e) {}
+  });
   var load = document.createElement('div'); load.className = 'load'; load.innerHTML = '<i></i>';
   var f = document.createElement('iframe');
   f.id = 'app'; f.title = 'New Office Expenses'; f.src = EXEC + q;
